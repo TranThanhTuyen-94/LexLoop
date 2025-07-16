@@ -17,12 +17,33 @@
       justify-content: center;
       align-items: center;
     }
-    h1 {
+    #selectorScreen {
+      position: relative;
+      text-align: center;
+      padding-top: 80px;
+    }
+    #reviewTitle {
       font-size: 2em;
       margin-bottom: 20px;
+      position: relative;
     }
-    #selectorScreen {
-      text-align: center;
+    #startBtn {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      font-size: 1em;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #startBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
     }
     #reviewScreen {
       display: none;
@@ -34,9 +55,14 @@
     }
     #wordDisplay {
       font-size: 6em;
-      margin: 50px 0;
+      margin: 50px 0 20px;
       font-family: 'Rubik', sans-serif;
       color: #2E7D32;
+    }
+    #hintDisplay {
+      font-size: 1.5em;
+      color: #1976D2;
+      margin-bottom: 30px;
     }
     .buttonRow {
       display: flex;
@@ -52,15 +78,25 @@
       border-radius: 40px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    #startBtn {
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    #hintBtn {
+      background: linear-gradient(135deg, #ffa726, #fb8c00);
       color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      margin-top: 30px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
-    #startBtn:hover {
-      transform: scale(1.03);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    #nextBtn {
+      background: linear-gradient(135deg, #42a5f5, #1565c0);
+      color: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    #hintBtn:hover, #nextBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    #endList {
+      margin-top: 30px;
+      font-size: 1.2em;
+      text-align: center;
+      max-width: 600px;
     }
     label {
       display: block;
@@ -75,41 +111,23 @@
       text-align: left;
       margin-bottom: 10px;
     }
-    #forgotBtn {
-      background: linear-gradient(135deg, #ef5350, #c62828);
-      color: white;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-    #nextBtn {
-      background: linear-gradient(135deg, #42a5f5, #1565c0);
-      color: white;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-    #forgotBtn:hover, #nextBtn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    }
-    #endList {
-      margin-top: 30px;
-      font-size: 1.2em;
-      text-align: center;
-    }
   </style>
 </head>
 <body>
 
   <div id="selectorScreen">
-    <h1>Select Lessons for Review</h1>
+    <h1 id="reviewTitle">LexLoop</h1>
+    <button id="startBtn" onclick="startReview()">Start</button>
     <div id="sheetList"></div>
-    <button id="startBtn" onclick="startReview()">🌀 Start the Loop</button>
   </div>
 
   <div id="reviewScreen">
-    <h1 id="reviewTitle">LexLoop</h1>
+    <h1>LexLoop</h1>
     <div id="wordDisplay">...</div>
+    <div id="hintDisplay"></div>
     <div class="buttonRow">
-      <button id="forgotBtn">❌ Forgot (Space)</button>
-      <button id="nextBtn">✅ Next (→)</button>
+      <button id="hintBtn">💡 Hint</button>
+      <button id="nextBtn">✅ Next</button>
     </div>
     <div id="endList"></div>
   </div>
@@ -118,10 +136,12 @@
     const sheetId = '1PGKAbRIC0fP7IFK1UWAmqgcGI6xFZ114OBJ2CSIiMHk';
     const apiKey = 'AIzaSyDTI3yXucHM8LHQeSXJYYJJYVzufW0R6ik';
 
-    let selectedSheets = [], allWords = [], currentIndex = 0, forgotten = [];
+    let selectedSheets = [], allWords = [], currentIndex = 0, hintedWords = [], hintShown = false;
 
     const selectorScreen = document.getElementById('selectorScreen');
     const reviewScreen = document.getElementById('reviewScreen');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const hintDisplay = document.getElementById('hintDisplay');
 
     async function loadSheetNames() {
       const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`);
@@ -144,41 +164,53 @@
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheet}?key=${apiKey}`;
         const res = await fetch(url);
         const data = await res.json();
-        const words = data.values.map(row => row[0]).filter(Boolean);
+        const words = data.values.map(row => ({
+          word: row[0],
+          hint: row[1] || '—'
+        }));
         allWords.push(...words);
       }
       currentIndex = 0;
-      forgotten = [];
+      hintedWords = [];
       selectorScreen.style.display = 'none';
       reviewScreen.style.display = 'flex';
       showWord();
     }
 
     function showWord() {
-      const display = document.getElementById('wordDisplay');
+      hintDisplay.textContent = '';
+      hintShown = false;
       if (currentIndex < allWords.length) {
-        display.textContent = allWords[currentIndex];
+        wordDisplay.textContent = allWords[currentIndex].word;
       } else {
-        display.textContent = '🎉 Done!';
+        wordDisplay.textContent = '🎉 Done!';
+        const listHTML = hintedWords.map(item => `<li><strong>${item.word}</strong>: ${item.hint}</li>`).join('');
         document.getElementById('endList').innerHTML = `
-          <h2>Forgotten Words</h2>
-          <p>${forgotten.join(', ') || 'None!'}</p>
+          <h2>Hinted Words</h2>
+          <ul>${listHTML || '<li>None!</li>'}</ul>
         `;
       }
     }
 
-    function nextWord(forgot = false) {
-      if (forgot) forgotten.push(allWords[currentIndex]);
+    function showHint() {
+      const currentItem = allWords[currentIndex];
+      hintDisplay.textContent = `Hint: ${currentItem.hint}`;
+      hintShown = true;
+    }
+
+    function nextWord() {
+      if (hintShown && currentIndex < allWords.length) {
+        hintedWords.push(allWords[currentIndex]);
+      }
       currentIndex++;
       showWord();
     }
 
-    document.getElementById('nextBtn').onclick = () => nextWord(false);
-    document.getElementById('forgotBtn').onclick = () => nextWord(true);
+    document.getElementById('nextBtn').onclick = nextWord;
+    document.getElementById('hintBtn').onclick = showHint;
 
     document.addEventListener('keydown', e => {
-      if (e.code === 'Space') nextWord(true);
-      if (e.code === 'ArrowRight') nextWord(false);
+      if (e.code === 'ArrowRight') nextWord();
     });
 
     loadSheetNames();
