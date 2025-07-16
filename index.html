@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LexLoop Vocab Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fff);
+      padding: 40px;
+      text-align: center;
+      color: #333;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    #selectorScreen, #reviewScreen {
+      display: none;
+    }
+    #wordDisplay {
+      font-size: 3em;
+      margin: 60px 0;
+      font-family: 'Rubik', sans-serif;
+      color: #2E7D32;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 12px 30px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 30px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #startBtn {
+      font-size: 1.2em;
+      padding: 14px 40px;
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      margin-top: 30px;
+    }
+    #startBtn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      font-size: 1.2em;
+      margin: 6px 0;
+      text-align: left;
+      color: #1976D2;
+      font-weight: 500;
+    }
+    #sheetList {
+      display: inline-block;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    #forgotBtn, #nextBtn {
+      font-size: 1.1em;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 30px;
+      color: white;
+      margin: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    #forgotBtn {
+      background: linear-gradient(135deg, #ef5350, #c62828);
+    }
+    #nextBtn {
+      background: linear-gradient(135deg, #42a5f5, #1565c0);
+    }
+    #forgotBtn:hover, #nextBtn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    #endList {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="selectorScreen">
+    <h1>Select Lessons for Review</h1>
+    <div id="sheetList"></div>
+    <button id="startBtn" onclick="startReview()">🌀 Start the Loop</button>
+  </div>
+
+  <div id="reviewScreen">
+    <h1 id="reviewTitle">LexLoop</h1>
+    <div id="wordDisplay">...</div>
+    <button id="forgotBtn">❌ Forgot (Space)</button>
+    <button id="nextBtn">✅ Next (→)</button>
+    <div id="endList"></div>
+  </div>
+
+  <script>
+    const sheetId = '1PGKAbRIC0fP7IFK1UWAmqgcGI6xFZ114OBJ2CSIiMHk'; // Replace with your actual ID
+    const apiKey = 'AIzaSyDTI3yXucHM8LHQeSXJYYJJYVzufW0R6ik';         // Replace with your actual key
+
+    let selectedSheets = [], allWords = [], currentIndex = 0, forgotten = [];
+
+    const selectorScreen = document.getElementById('selectorScreen');
+    const reviewScreen = document.getElementById('reviewScreen');
+
+    async function loadSheetNames() {
+      const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`);
+      const data = await res.json();
+      const sheetList = document.getElementById('sheetList');
+      data.sheets.forEach(sheet => {
+        const name = sheet.properties.title;
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${name}"/> ${name}`;
+        sheetList.appendChild(label);
+      });
+      selectorScreen.style.display = 'block';
+    }
+
+    async function startReview() {
+      const checkboxes = document.querySelectorAll('#sheetList input:checked');
+      selectedSheets = Array.from(checkboxes).map(cb => cb.value);
+      if (selectedSheets.length === 0) return alert("Please select at least one lesson.");
+      allWords = [];
+      for (const sheet of selectedSheets) {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheet}?key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const words = data.values.map(row => row[0]).filter(Boolean);
+        allWords.push(...words);
+      }
+      currentIndex = 0;
+      forgotten = [];
+      selectorScreen.style.display = 'none';
+      reviewScreen.style.display = 'block';
+      showWord();
+    }
+
+    function showWord() {
+      const display = document.getElementById('wordDisplay');
+      if (currentIndex < allWords.length) {
+        display.textContent = allWords[currentIndex];
+      } else {
+        display.textContent = '🎉 Done!';
+        document.getElementById('endList').innerHTML = `
+          <h2>Forgotten Words</h2>
+          <p>${forgotten.join(', ') || 'None!'}</p>
+          <button onclick="exportForgotten()">📤 Export via Email</button>
+        `;
+      }
+    }
+
+    function nextWord(forgot = false) {
+      if (forgot) forgotten.push(allWords[currentIndex]);
+      currentIndex++;
+      showWord();
+    }
+
+    function exportForgotten() {
+      const body = encodeURIComponent(forgotten.join('\n'));
+      window.location.href = `mailto:?subject=LexLoop Forgotten Words&body=${body}`;
+    }
+
+    document.getElementById('nextBtn').onclick = () => nextWord(false);
+    document.getElementById('forgotBtn').onclick = () => nextWord(true);
+
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space') nextWord(true);
+      if (e.code === 'ArrowRight') nextWord(false);
+    });
+
+    loadSheetNames();
+  </script>
+
+</body>
+</html>
