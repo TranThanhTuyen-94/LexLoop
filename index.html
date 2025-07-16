@@ -38,10 +38,15 @@
       font-family: 'Rubik', sans-serif;
       color: #2E7D32;
     }
+    .buttonRow {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
     button {
-      font-size: 2em;
-      padding: 20px 50px;
-      margin: 10px;
+      font-size: 1.5em;
+      padding: 15px 35px;
       cursor: pointer;
       border: none;
       border-radius: 40px;
@@ -102,14 +107,16 @@
   <div id="reviewScreen">
     <h1 id="reviewTitle">LexLoop</h1>
     <div id="wordDisplay">...</div>
-    <button id="forgotBtn">❌ Forgot (Space)</button>
-    <button id="nextBtn">✅ Next (→)</button>
+    <div class="buttonRow">
+      <button id="forgotBtn">❌ Forgot (Space)</button>
+      <button id="nextBtn">✅ Next (→)</button>
+    </div>
     <div id="endList"></div>
   </div>
 
   <script>
-    const sheetId = '1PGKAbRIC0fP7IFK1UWAmqgcGI6xFZ114OBJ2CSIiMHk'; // Replace with your actual ID
-    const apiKey = 'AIzaSyDTI3yXucHM8LHQeSXJYYJJYVzufW0R6ik';         // Replace with your actual key
+    const sheetId = '1PGKAbRIC0fP7IFK1UWAmqgcGI6xFZ114OBJ2CSIiMHk';
+    const apiKey = 'AIzaSyDTI3yXucHM8LHQeSXJYYJJYVzufW0R6ik';
 
     let selectedSheets = [], allWords = [], currentIndex = 0, forgotten = [];
 
@@ -156,7 +163,6 @@
         document.getElementById('endList').innerHTML = `
           <h2>Forgotten Words</h2>
           <p>${forgotten.join(', ') || 'None!'}</p>
-          <button onclick="exportForgotten()">📤 Export via Email</button>
         `;
       }
     }
@@ -165,11 +171,6 @@
       if (forgot) forgotten.push(allWords[currentIndex]);
       currentIndex++;
       showWord();
-    }
-
-    function exportForgotten() {
-      const body = encodeURIComponent(forgotten.join('\n'));
-      window.open(`https://mail.google.com/mail/?view=cm&fs=1&tf=1&su=LexLoop Forgotten Words&body=${body}`, '_blank');
     }
 
     document.getElementById('nextBtn').onclick = () => nextWord(false);
