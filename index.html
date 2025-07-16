@@ -169,7 +169,7 @@
 
     function exportForgotten() {
       const body = encodeURIComponent(forgotten.join('\n'));
-      window.location.href = `mailto:?subject=LexLoop Forgotten Words&body=${body}`;
+      window.open(`https://mail.google.com/mail/?view=cm&fs=1&tf=1&su=LexLoop Forgotten Words&body=${body}`, '_blank');
     }
 
     document.getElementById('nextBtn').onclick = () => nextWord(false);
