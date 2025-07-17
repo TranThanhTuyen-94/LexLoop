@@ -35,22 +35,22 @@
       justify-content: flex-end;
       width: 100%;
     }
-#startBtn {
-  background: linear-gradient(135deg, #4CAF50, #2E7D32);
-  color: white;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  font-size: 1.2em;
-  font-weight: 600;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  cursor: pointer;
-  border: none;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
+    #startBtn {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      color: white;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      font-size: 1.2em;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
     #startBtn:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 14px rgba(0,0,0,0.2);
@@ -66,7 +66,6 @@
       flex-direction: column;
       gap: 6px;
     }
-
     #reviewScreen {
       display: none;
       flex-direction: column;
@@ -117,6 +116,7 @@
       margin-top: 30px;
       font-size: 1.2em;
       max-width: 600px;
+      text-align: left;
     }
   </style>
 </head>
@@ -175,10 +175,13 @@
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheet}?key=${apiKey}`;
         const res = await fetch(url);
         const data = await res.json();
-        const words = data.values.map(row => ({
-          word: row[0],
-          hint: row[1] || '—'
-        }));
+        const words = data.values
+          .filter(row => row.length >= 3)
+          .map(row => ({
+            word: row[0],
+            hint: row[1] || '—',
+            meaning: row[2] || '—'
+          }));
         allWords.push(...words);
       }
       currentIndex = 0;
@@ -191,13 +194,16 @@
     function showWord() {
       hintDisplay.textContent = '';
       hintShown = false;
+
       if (currentIndex < allWords.length) {
         wordDisplay.textContent = allWords[currentIndex].word;
       } else {
         wordDisplay.textContent = '🎉 Done!';
-        const listHTML = hintedWords.map(item => `<li><strong>${item.word}</strong>: ${item.hint}</li>`).join('');
+        const listHTML = hintedWords.map(item =>
+          `<li><strong>${item.word}</strong><br><em>Hint:</em> ${item.hint}<br><em>Meaning:</em> ${item.meaning}</li>`
+        ).join('');
         document.getElementById('endList').innerHTML = `
-          <h2>Hinted Words</h2>
+          <h2>📚 Forgotten Words</h2>
           <ul>${listHTML || '<li>None!</li>'}</ul>
         `;
       }
