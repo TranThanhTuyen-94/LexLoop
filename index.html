@@ -1,24 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  
   <meta charset="UTF-8" />
-  <title>TOEIC Vocab</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+  <title>Vocab for Xuan Yen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    html {
-  scroll-behavior: smooth;
+    #gameBtn {
+  background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+  color: white;
+  font-size: 1.5em;
+  padding: 15px 35px;
+  border-radius: 40px;
+  text-decoration: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #e3f2fd, #fff);
-      margin: 0;
-      color: #333;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 20px;
-    }
+
+#gameBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+    #dateContainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.dateColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+ body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  background: linear-gradient(135deg, #a8edea, #fed6e3);
+  background-size: 100% 100%;
+  margin: 0;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0 20px;
+}
+
     #selectorScreen {
       width: 100%;
       max-width: 600px;
@@ -26,37 +61,18 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      align-items: center;
+      text-align: center;
     }
-    .light-yellow {
-  background-color: #fff9c4;
-  color: #333;
-  font-weight: bold;
-  border: none;
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.light-yellow:hover {
-  background-color: #fff176;
-}
-
-#topRightBtn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-}
     #reviewTitle {
       font-size: 3em;
-      font-family: 'Rubik', sans-serif;
+      font-family: 'Be Vietnam Pro', sans-serif;
       text-align: center;
       margin-bottom: 10px;
     }
     .startLine {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
       width: 100%;
     }
     #startBtn {
@@ -80,7 +96,7 @@
       box-shadow: 0 6px 14px rgba(0,0,0,0.2);
     }
     label {
-      font-size: 1.3em;
+      font-size: 1em;
       margin: 6px 0;
       color: #1976D2;
       font-weight: 500;
@@ -89,22 +105,20 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      align-items: center;
     }
-#reviewScreen {
-  position: relative;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px;
-  text-align: center;
-  max-height: 100vh;
-  overflow-y: auto;
-}
-
+    #reviewScreen {
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
     #wordDisplay {
       font-size: 6em;
       margin: 40px 0 20px;
-      font-family: 'Rubik', sans-serif;
+      font-family: 'Be Vietnam Pro', sans-serif;
       color: #2E7D32;
     }
     #hintDisplay {
@@ -146,32 +160,82 @@
       max-width: 600px;
       text-align: left;
     }
+
+    /* ✅ Mobile view adjustments */
+    @media (max-width: 480px) {
+  body, #selectorScreen, #reviewScreen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2.5em;
+  }
+
+  #wordDisplay {
+    font-size: 3.5em; /* 🔺 Twice as big */
+  }
+
+  #hintDisplay {
+    font-size: 0.75em; /* 🔻 Half size */
+  }
+
+  button {
+    font-size: 1em; /* 🔻 2/3 of original */
+    padding: 20px 40px;
+    border-radius: 40px;
+  }
+
+  #startBtn {
+    width: 120px;
+    height: 120px;
+    font-size: 1.6em;
+  }
+
+  label {
+    font-size: 1em;
+  }
+
+  #endList {
+    font-size: 1em;
+  }
+}
   </style>
 </head>
 <body>
 
-  <!-- Landing screen -->
   <div id="selectorScreen">
-    <h1 id="reviewTitle">TOEIC Vocab</h1>
+    <h1 id="reviewTitle">Vocab for Xuan Yen</h1>
     <div class="startLine">
       <button id="startBtn" onclick="startReview()">Start</button>
     </div>
     <div id="sheetList"></div>
   </div>
 
-  <!-- Review screen -->
   <div id="reviewScreen">
-    <h1>⚡ TOEIC Vocab</h1>
+    <h1>Vocab for Xuan Yen</h1>
     <div id="wordDisplay">...</div>
     <div id="hintDisplay"></div>
     <div class="buttonRow">
-      <button id="hintBtn">💡 Hint</button>
-      <button id="nextBtn">✅ Next</button>
-    </div>
+  <button id="hintBtn">💡 Hint</button>
+  <button id="nextBtn">✅ Next</button>
+</div>
+<div class="buttonRow" id="gameButtonRow" style="display: none;">
+  <a href="https://tranthanhtuyen-94.github.io/GameforXuanYen/" id="gameBtn">
+    🎮 Game
+  </a>
+</div>
     <div id="endList"></div>
   </div>
 
   <script>
+    function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
     const sheetId = '1Ql_SAjw0axHL5D0jOM58IO_mSvNWistDds47apYZGbY';
     const apiKey = 'AIzaSyDTI3yXucHM8LHQeSXJYYJJYVzufW0R6ik';
 
@@ -182,70 +246,119 @@
     const wordDisplay = document.getElementById('wordDisplay');
     const hintDisplay = document.getElementById('hintDisplay');
 
-    async function loadSheetNames() {
-      const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`);
-      const data = await res.json();
-      const sheetList = document.getElementById('sheetList');
-      data.sheets.forEach(sheet => {
-        const name = sheet.properties.title;
-        const label = document.createElement('label');
-        label.innerHTML = `<input type="checkbox" value="${name}"/> ${name}`;
-        sheetList.appendChild(label);
-      });
-    }
+      async function loadSheetNames() {
+  try {
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`);
+    const data = await res.json();
+    console.log("Sheet metadata:", data);
 
-    async function startReview() {
-      const checkboxes = document.querySelectorAll('#sheetList input:checked');
-      selectedSheets = Array.from(checkboxes).map(cb => cb.value);
-      if (selectedSheets.length === 0) return alert("Please select at least one lesson.");
-      allWords = [];
-      for (const sheet of selectedSheets) {
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheet}?key=${apiKey}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const words = data.values
-          .filter(row => row.length >= 3)
-          .map(row => ({
-            word: row[0],
-            hint: row[1] || '—',
-            meaning: row[2] || '—'
-          }));
-        allWords.push(...words);
-      }
-      currentIndex = 0;
-      hintedWords = [];
-      selectorScreen.style.display = 'none';
-      reviewScreen.style.display = 'flex';
-      showWord();
-    }
+    const sheetList = document.getElementById('sheetList');
+    const dateContainer = document.createElement('div');
+    dateContainer.id = 'dateContainer';
 
-    function showWord() {
-      hintDisplay.textContent = '';
-      hintShown = false;
+    const leftColumn = document.createElement('div');
+    const rightColumn = document.createElement('div');
+    leftColumn.className = 'dateColumn';
+    rightColumn.className = 'dateColumn';
 
-      if (currentIndex < allWords.length) {
-        wordDisplay.textContent = allWords[currentIndex].word;
+    data.sheets.forEach((sheet, index) => {
+      const name = sheet.properties.title;
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" value="${name}"/> ${name}`;
+
+      if (index < 8) {
+        leftColumn.appendChild(label);
       } else {
-        wordDisplay.textContent = '🎉 Done!';
-        const listHTML = hintedWords.map(item =>
-          `<li><strong>${item.word}</strong><br><em>Hint:</em> ${item.hint}<br><em>Meaning:</em> ${item.meaning}</li>`
-        ).join('');
-        document.getElementById('endList').innerHTML = `
-          <h2>📚 Forgotten Words</h2>
-          <ul>${listHTML || '<li>None!</li>'}</ul>
-              <div id="topRightBtn">
-  <a href="https://tranthanhtuyen-94.github.io/GameforXuanYen/">
-    <button class="light-yellow">Game</button>
-  </a>
-</div>
-        `;
+        rightColumn.appendChild(label);
       }
-    }
+    });
 
+    dateContainer.appendChild(leftColumn);
+    dateContainer.appendChild(rightColumn);
+    sheetList.appendChild(dateContainer);
+
+  } catch (error) {
+    console.error("Error loading sheet names:", error);
+    alert("⚠️ Failed to load lesson list. Please check your API key or sheet access.");
+  }
+}
+
+   async function startReview() {
+  const checkboxes = document.querySelectorAll('#sheetList input:checked');
+  selectedSheets = Array.from(checkboxes).map(cb => cb.value);
+  if (selectedSheets.length === 0) return alert("Please select at least one lesson.");
+
+  allWords = [];
+
+for (const sheet of selectedSheets) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheet}?key=${apiKey}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log(`Data from sheet "${sheet}":`, data);
+
+    const words = data.values
+      .filter(row => row.length >= 3)
+      .map(row => ({
+        word: row[0],
+        hint: row[1] || '—',
+        meaning: row[2] || '—'
+      }));
+
+    allWords.push(...words);
+    shuffleArray(allWords);
+  } catch (error) {
+    console.error(`Error loading sheet "${sheet}":`, error);
+    alert(`Failed to load data from sheet "${sheet}".`);
+  }
+}
+
+  currentIndex = 0;
+  hintedWords = [];
+  selectorScreen.style.display = 'none';
+  reviewScreen.style.display = 'flex';
+  showWord();
+}
+function showWord() {
+  hintDisplay.textContent = '';
+  hintShown = false;
+
+  if (currentIndex < allWords.length) {
+    wordDisplay.textContent = allWords[currentIndex].word;
+
+    // Show Hint and Next buttons
+    document.getElementById('hintBtn').style.display = 'inline-block';
+    document.getElementById('nextBtn').style.display = 'inline-block';
+
+    // Hide Game button
+    document.getElementById('gameButtonRow').style.display = 'none';
+  } else {
+    wordDisplay.textContent = '🎉 Done!';
+    const listHTML = hintedWords.map(item =>
+      `<li><strong>${item.word}</strong><br><em>Hint:</em> ${item.hint}<br><em>Meaning:</em> ${item.meaning}</li>`
+    ).join('');
+    document.getElementById('endList').innerHTML = `
+      <h2>📚 Forgotten Words</h2>
+      <ul>${listHTML || '<li>None!</li>'}</ul>
+    `;
+
+    // Hide Hint and Next buttons
+    document.getElementById('hintBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+
+    // Show Game button
+    document.getElementById('gameButtonRow').style.display = 'flex';
+  }
+}
+
+    // ✅ Updated hint logic to prevent first-load bug
     function showHint() {
+      if (!allWords.length || currentIndex >= allWords.length) return;
       const currentItem = allWords[currentIndex];
-      hintDisplay.textContent = `Hint: ${currentItem.hint}`;
-      hintShown = true;
+      if (!hintShown) {
+        hintDisplay.textContent = `Hint: ${currentItem.hint}`;
+        hintShown = true;
+      }
     }
 
     function nextWord() {
@@ -255,22 +368,18 @@
       currentIndex++;
       showWord();
     }
-
-    document.getElementById('nextBtn').onclick = nextWord;
     document.getElementById('hintBtn').onclick = showHint;
+    document.getElementById('nextBtn').onclick = nextWord;
+
+    // ✅ Updated keyboard logic with screen check
     document.addEventListener('keydown', e => {
-      if (e.code === 'Space') showHint();
-      if (e.code === 'ArrowRight') nextWord();
+      if (reviewScreen.style.display === 'flex') {
+        if (e.code === 'Space') showHint();
+        if (e.code === 'ArrowRight') nextWord();
+      }
     });
 
-    loadSheetNames();
+    window.onload = loadSheetNames;
   </script>
-
 </body>
 </html>
-
-
-
-
-
-
